@@ -1,6 +1,9 @@
 #include "tensorflow/lite/micro/micro_mutable_op_resolver.h"
 #include "tensorflow/lite/micro/micro_interpreter.h"
 #include "tensorflow/lite/schema/schema_generated.h"
+#include "tensorflow/lite/core/c/common.h"
+
+#include "vexriscv/vexriscv.h"
 
 #ifdef BENCHMARK_RESNET
 #include "models/resnet_model_quant.h"
@@ -63,10 +66,15 @@ int main(){
     #endif
 
     #ifdef BENCHMARK_VWW
+
     tflite::MicroMutableOpResolver<9> resolver;
     resolver.AddAdd();
     resolver.AddConv2D();
+    #ifdef VEXRISCV_OPT
+    resolver.AddDepthwiseConv2D(tflite::Register_DEPTHWISE_CONV_2D_VEXRISCV());
+    #else
     resolver.AddDepthwiseConv2D();
+    #endif
     resolver.AddRelu();
     resolver.AddReshape();
     resolver.AddBatchToSpaceNd();
@@ -83,7 +91,11 @@ int main(){
     tflite::MicroMutableOpResolver<9> resolver;
     resolver.AddAdd();
     resolver.AddConv2D();
+    #ifdef VEXRISCV_OPT
+    resolver.AddDepthwiseConv2D(tflite::Register_DEPTHWISE_CONV_2D_VEXRISCV());
+    #else
     resolver.AddDepthwiseConv2D();
+    #endif
     resolver.AddRelu();
     resolver.AddReshape();
     resolver.AddBatchToSpaceNd();

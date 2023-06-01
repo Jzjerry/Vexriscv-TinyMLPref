@@ -46,10 +46,10 @@ C_OBJS = $(patsubst $(SRC_DIR)/%.c, $(BUILD_DIR)/$(MARCH)/%.o, $(C_SOURCES))
 CPP_OBJS = $(patsubst $(SRC_DIR)/%.cc, $(BUILD_DIR)/$(MARCH)/%.o, $(CPP_SOURCES))
 ASM_OBJS = $(patsubst $(SRC_DIR)/%.s, $(BUILD_DIR)/$(MARCH)/%.o, $(ASM_SOURCES))
 
-CFLAGS += -DBENCHMARK_$(BENCH)
+CFLAGS += -DBENCHMARK_$(BENCH) $(if $(OPT),-DVEXRISCV_OPT)
 
 TARGET = tflite_$(BENCH)
-TARGET := $(TARGET)_$(MARCH)
+TARGET := $(TARGET)_$(MARCH)$(if $(OPT),_opt)
 
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).asm
 
@@ -79,6 +79,9 @@ $(BUILD_DIR)/$(MARCH)/%.o: $(SRC_DIR)/%.s
 
 %.asm: %.elf
 	$(OBJ_DUMP) -S -d $^ > $@
+
+clean_targets:
+	rm -rf $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).asm $(BUILD_DIR)/$(MARCH)/main.o
 
 clean:
 	rm -rf $(BUILD_DIR) tflitemicro.map
